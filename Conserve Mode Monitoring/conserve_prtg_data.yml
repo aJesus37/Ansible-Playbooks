@@ -1,0 +1,28 @@
+---
+        - name: Set facts for token
+          set_fact:
+            token: "{{ item | string | regex_search('.* #') | replace(' #','') | string }}"
+
+        - name: Set facts for conserve
+          set_fact:
+            conserve: "{{ item | string | regex_search(': (on|off)') | replace(': ','') }}"
+
+        - name: Send ok result to PRTG
+          local_action:
+            module: uri
+            url: "{{ url + token + '_Conserve_Test'}}"
+            method: "POST"
+            body_format: "json"
+            body: '{"prtg":{"result":[{"channel":"Conserve mode","value":"0"}],"text":"Firewall operating normally","error":"0"}}'
+            validate_certs: no
+          when: conserve == "off"
+
+        - name: Send error result to PRTG
+          local_action:
+            module: uri
+            url: "{{ url + token + '_Conserve_Test'}}"
+            method: "POST"
+            body_format: "json"
+            body: '{"prtg":{"result":[{"channel":"Conserve mode","value":"1"}],"text":"Firewall in conserve mode","error":"0"}}'
+            validate_certs: no
+          when: conserve == "on"
