@@ -4,7 +4,7 @@
 
 Monitors Fortinet's Fortigate firewalls for policies which the last hit is older than N days, being N any integer desired, then outputing the result into a HTTP Push Data Advanced in PRTG. The final result is like below:
 
-![Old Policies Sensor](../../assets/images/old_policy_sensor.png)
+![Old Policies Sensor](../assets/images/old_policy_sensor.png)
 
 ## Setup
 
