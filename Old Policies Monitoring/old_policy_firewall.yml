@@ -1,0 +1,85 @@
+---
+        - name: (Re)Create empty file for storage of information
+          local_action:
+            module: copy
+            dest: /tmp/old_rules.txt
+            content: ""
+          run_once: True
+
+        - name: Gather Facts for ansible host
+          local_action:
+            module: setup
+          run_once: True
+
+        - name: Get the status from fortigate firewall
+          raw: show firewall policy | grep edit
+          register: result
+
+        - name: Set variable for the rule ids
+          set_fact:
+            rules_id: "{{ result.stdout | string | regex_findall('edit \\d') | replace('edit ','') | string }}"
+
+        - name: Set variable for token (hostname)
+          set_fact:
+            token: "{{ result.stdout | string | regex_search('[a-zA-Z0-9_-]+\ #') | replace(' #','') | string }}"
+
+        - name: Get hits for every rule on firewall
+          raw: diagnose firewall iprope  show   00100004 {{ item }}
+          register: rules
+          loop: "{{ rules_id }}"
+
+        - name: create empty variable for the final results
+          set_fact:
+            results_final: ""
+
+        - name: add data to the final results iterating over loop
+          set_fact:
+            results_final: "{{ results_final + item.stdout }}"
+          with_items: "{{ rules.results }}"
+
+        - name: format the variable to remove line what will not be used
+          set_fact:
+            results_format: "{{ results_final | regex_findall('idx=[0-9]*.*\n.*last.*:\\d{2}') | regex_replace(' pkts/bytes=\\d*/\\d* asic_pkts/asic_bytes=\\d*/\\d* flag=\\d*x\\d* hit count:\\d*\\r\\n   ','') | replace('\\r\\n  ','') }}"
+
+        - name: cleans even more the results
+          set_fact:
+            result_format_clean: "{{ results_format | regex_replace('pkts/bytes=\\d*/\\d* asic_pkts/asic_bytes=\\d*/\\d* flag=\\d*x\\d* ','') | regex_replace(' hit count:\\d* ') }}"
+
+        - name: get only the ids from the string
+          set_fact:
+            result_id: "{{ result_format_clean | join('\\n') | regex_findall('idx=\\d*') | regex_replace('idx=','') }}"
+
+        - name: get the last access to the ids
+          set_fact:
+            result_last_access: "{{ result_format_clean |  join('\\n') | regex_findall('last:\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}') | replace('last:','') }}"
+
+        - name: create empty variable for the old rules
+          set_fact:
+            old_rule_index: ""
+
+        - name: get actual time and put it in variable
+          set_fact:
+            date_time: "{{ ansible_date_time.date + ' ' + ansible_date_time.time }}"
+
+        - name: get only the ids where the last access is older than defined in main
+          set_fact:
+             old_rule_index: "{{ old_rule_index  + result_id[index] + ', ' }}"
+          when: ((date_time)|to_datetime - (result_last_access[index])|to_datetime).days >= time_to_be_old
+          loop: "{{ result_id }}"
+          loop_control:
+            index_var: index
+
+        - name: remove additional comma at end of string
+          set_fact:
+            old_rule_index: "{{ old_rule_index | regex_replace(', $','') | string }}"
+
+        - name: Displaying old ids
+          debug:
+            msg: "{{ old_rule_index }}"
+
+        - name: send content to file
+          lineinfile:
+            line: "{{ token + ' # ' + old_rule_index | string }}\n"
+            dest: /tmp/old_rules.txt
+            insertafter: EOF
+          delegate_to: localhost

@@ -1,0 +1,43 @@
+---
+        - name: Set facts for token
+          set_fact:
+            token: "{{ item | string | regex_search('.* #') | replace(' #','') | string }}"
+        
+        - name: Set facts for old policies
+          set_fact:
+            old_policies: "{{ item | string | regex_search('# .*') | replace('# ','') | string }}"
+
+        - name: Set facts for old policies count, count != 0
+          set_fact:
+            old_policies_count: "{{ (old_policies.split(',') | length | int) }}"
+          when: old_policies != "None"
+
+        - name: Set facts for old policies count, count == 0
+          set_fact:
+            old_policies_count: 0
+          when: old_policies == "None"
+
+        - name: Set facts for error body
+          set_fact:
+            body: "{{ '{\"prtg\":{\"result\":[{\"channel\":\"Old policy count\",\"value\":\"'  ~ old_policies_count  ~ '\"}],\"text\":\"Following rules are older than X days: ' + old_policies + '\",\"error\":\"0\"}}' }}"
+          when: old_policies > 0
+
+        - name: Send ok result to PRTG
+          local_action:
+            module: uri
+            url: "{{ url + token + '_old_policy_test' }}"
+            method: "POST"
+            body_format: "json"
+            body: '{"prtg":{"result":[{"channel":"Old policy count","value":"0"}],"text":"There are no rules older than X days","error":"0"}}'
+            validate_certs: no
+          when: old_policies_count == 0
+
+        - name: Send error result to PRTG
+          local_action:
+            module: uri
+            url: "{{ url + token + '_old_policy_test' }}"
+            method: "POST"
+            body_format: "json"
+            body: "{{ body }}"
+            validate_certs: no
+          when: old_policies_count > 0

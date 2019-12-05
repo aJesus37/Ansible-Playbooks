@@ -1,0 +1,18 @@
+---
+- hosts: firewalls
+  vars:
+    time_to_be_old: 100
+  gather_facts: no
+  tasks:
+  - include_tasks: "old_policy_firewall.yml"
+
+- hosts: localhost
+  vars:
+    values: "{{ lookup('file','/tmp/old_rules.txt').splitlines() }}"
+    url: "https://prtgdomain.com:5051/" # URL para o PRTG. Porta 5051 usada quando SSL, 5050 usada quando não SSL
+  connection: local
+  tasks:
+
+  - name: Send data to PRTG
+    include_tasks: "old_policy_prtg.yml"
+    loop: "{{ values }}"
