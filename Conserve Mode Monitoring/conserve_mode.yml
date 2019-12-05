@@ -1,0 +1,88 @@
+---
+    - name: Get conserve mode status from firewalls
+      hosts: 10.63.60.63
+      gather_facts: no
+      tasks:
+        # - name: Gather Facts for ansible host
+        #   local_action:
+        #     module: setup
+        #   run_once: True
+
+        - name: (Re)Create empty file for storage of information
+          local_action:
+            module: copy
+            dest: /tmp/conserve_test.txt
+            content: ""
+          run_once: True
+
+        - name: Get the status from fortigate firewall
+          raw: diagnose hardware sysinfo conserve
+          register: result
+
+        - set_fact:
+            conserve_status: "{{ result.stdout_lines | string | regex_search('[a-zA-Z0-9_-]+\ #.*conserve mode: (on|off)') | string }}" 
+
+        - set_fact:
+            token: "{{ conserve_status | string | regex_search('.* #') | replace(' #','') | string }}"
+
+        - set_fact:
+            conserve: "{{ conserve_status | string | regex_search(': (on|off)') | replace(': ','') | string }}"
+
+        - name: send content to file
+          lineinfile:
+            line: "{{ conserve_status | string }}\n"
+            dest: /tmp/conserve_test.txt
+            insertafter: EOF
+          delegate_to: localhost
+
+
+    # - name: Send Values to PRTG
+    #   hosts: localhost
+    #   gather_facts: no
+    #   tasks:
+
+        # - name: Set Token
+        #   set_fact:
+        #     token: {{  }}
+
+        # - name: Send ok result to PRTG
+        #   local_action:
+        #     module: uri
+        #     url: "https://10.63.60.88:5051/{{ token }}"
+        #     method: "POST"
+        #     body_format: "json"
+        #     body: '{"prtg":{"result":[{"channel":"Conserve_mode","value":"0"},{"channel":"Second channel","value":"1"}],"text":"Firewall Bom","error":"0"}}'
+        #     validate_certs: no
+        #   when: conserve == off
+
+        # - name: Send ok result to PRTG
+        #   local_action:
+        #     module: uri
+        #     url: "https://10.63.60.88:5051/{{ token }}"
+        #     method: "POST"
+        #     body_format: "json"
+        #     body: '{"prtg":{"result":[{"channel":"Conserve_mode","value":"0"},{"channel":"Second channel","value":"1"}],"text":"Firewall em conserve mode","error":"1"}}'
+        #     validate_certs: no
+        #   when: conserve == on
+
+
+    # - name: Copy file to remote server
+    #   hosts: 10.63.60.100
+    #   gather_facts: no
+    #   tasks:
+      
+    #   - name: check if folder ansible exists
+    #     win_stat:
+    #       path: C:\temp\ansible\
+    #     register: ansible_folder
+
+    #   - name: create folder ansible if not exists
+    #     win_file:
+    #       path: C:\temp\ansible\
+    #       state: directory
+    #     when: ansible_folder.stat.exists == false
+
+    #   - name: copy file to remote server
+    #     win_copy:
+    #       src: /tmp/conserve_test.txt
+    #       dest: C:\temp\ansible\conserve_test.txt
