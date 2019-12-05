@@ -19,7 +19,7 @@
 
         - name: Set facts for error body
           set_fact:
-            body: "{{ '{\"prtg\":{\"result\":[{\"channel\":\"Old policy count\",\"value\":\"'  ~ old_policies_count  ~ '\"}],\"text\":\"Following rules are older than X days: ' + old_policies + '\",\"error\":\"0\"}}' }}"
+            body: "{{ '{\"prtg\":{\"result\":[{\"channel\":\"Old policy count\",\"value\":\"'  ~ old_policies_count  ~ '\"}],\"text\":\"Following rules are older than ' ~ time_to_be_old ~ ' days: ' + old_policies + '\",\"error\":\"0\"}}' }}"
           when: old_policies > 0
 
         - name: Send ok result to PRTG
@@ -28,7 +28,7 @@
             url: "{{ url + token + '_old_policy_test' }}"
             method: "POST"
             body_format: "json"
-            body: '{"prtg":{"result":[{"channel":"Old policy count","value":"0"}],"text":"There are no rules older than X days","error":"0"}}'
+            body: '{"prtg":{"result":[{"channel":"Old policy count","value":"0"}],"text":"There are no rules older than {{ time_to_be_old }} days","error":"0"}}'
             validate_certs: no
           when: old_policies_count == 0
 
