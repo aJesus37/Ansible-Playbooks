@@ -7,7 +7,7 @@
         - name: (Re)Create empty file for storage of information
           local_action:
             module: copy
-            dest: /tmp/administrators_check.csv
+            dest: /tmp/administrators_windows_check.csv
             content: '"Machine","IP","Domain","User/Group"'
           run_once: True
 
@@ -22,13 +22,13 @@
         - name: send content to file
           lineinfile:
             line: "{{ administrators.stdout | string }}"
-            dest: /tmp/administrators_check.csv
+            dest: /tmp/administrators_windows_check.csv
             insertafter: EOF
           delegate_to: localhost
 
         - name: Remove empty lines in csv
           replace:
-            path: /tmp/administrators_check.csv
+            path: /tmp/administrators_windows_check.csv
             regexp: '(^\s*$\n)'
             replace: ''
           delegate_to: localhost
