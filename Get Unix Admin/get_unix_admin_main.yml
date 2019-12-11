@@ -1,0 +1,92 @@
+---
+    - name: Get users and groups in local administrators group
+      hosts: localhost
+      gather_facts: no
+      tasks:
+
+        - name: (Re)Create empty file for storage of information
+          local_action:
+            module: copy
+            dest: /tmp/administrators_unix_check.csv
+            content: '"group","user","hostname","ip"'
+          run_once: True
+
+        - name: Set variable with common administrator groups
+          set_fact:
+            group_list:
+              - admin
+              - wheel
+              - staff
+              - sudo
+              - sudoers
+
+        - name: Get users in local administrators group
+          command:  awk -F':' '/{{ item }}/{print $4}' /etc/group
+          register: administrators
+          loop: "{{ group_list }}"
+
+        - name: Get username
+          command:  hostname
+          register: hostname
+
+        - name: Create unix users
+          set_fact: 
+            unix_users1: ""
+
+        - name: Set users for each group
+          set_fact: 
+            unix_users1: "{{ unix_users1 + ',' + administrators.results[index].stdout | regex_replace('(?:(\\w+)$)', item + ':' + '\\1' ) | regex_replace('(?:(\\w+,))', item + ':' + '\\1' ) }}"
+          when: administrators.results[index].stdout != ""
+          loop: "{{ group_list }}"
+          loop_control:
+            index_var: index
+
+        - name: Remove initial comma
+          set_fact: 
+            unix_users1: "{{ unix_users1 | regex_replace('^,','') }}"
+
+        - name: Initiate variable
+          set_fact: 
+            csv_values: ""
+
+        - name: Display groups data
+          debug:
+            msg: "{{ unix_users1 }}"
+
+        - name: convert output to csv
+          set_fact: 
+            csv_values: "{{ csv_values + item | regex_replace('(?:^(\\w+):(\\w+)$)', '\"\\1\",\"\\2\",\"' + hostname.stdout + '\",\"' + inventory_hostname + '\";'   ) | string }}"
+          loop: "{{ (unix_users1).split(',') }}"
+
+        - name: Remove additional semi-colon
+          set_fact: 
+            csv_values: "{{ (csv_values | regex_replace(';$','')).split(';') }}"
+
+        - name: Display groups data
+          debug:
+            msg: "{{ csv_values }}"
+
+        # - name: Send wheel users to file
+        #   lineinfile:
+        #     line: "{{ '\"'+item+'\",\"wheel\",\"'+hostname.stdout+'\"' }}"
+        #     dest: /tmp/administrators_unix_check.csv
+        #     insertafter: EOF
+        #   delegate_to: localhost
+        #   when: wheel != ""
+        #   loop: "{{ wheel }}"
+
+        - name: send content to file
+          lineinfile:
+            line: "{{ item }}"
+            dest: /tmp/administrators_unix_check.csv
+            insertafter: EOF
+          delegate_to: localhost
+          loop: "{{ csv_values }}"
+
+        # - name: Remove empty lines in csv
+        #   replace:
+        #     path: /tmp/administrators_unix_check.csv
+        #     regexp: '(^\s*$\n)'
+        #     replace: ''
+        #   delegate_to: localhost
+        #   run_once: True
