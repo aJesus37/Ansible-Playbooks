@@ -1,8 +1,8 @@
 $userlist=$(net user /domain) # Get all the users in the domain
-$userlist=$userlist -split " " | Where-Object { $_ } # Separe in lines and get only the lines with content
+$userlist=$($userlist -split "  " | where { $_ -imatch "\w+" }).Trim() # Separe in lines and get only the lines with content
 $userlist=$userlist[17..($($userlist).length-5)] # Get only the lines with users (remove text from the net user command)
 
-$userdata=$userlist | ForEach-Object { $(net user $_ /domain | Select-String -Pattern "User name|Last Logon|Account active" | Tee-Object -Variable userdata;Write-Output "") } # Get the user name, last logon and if the account is active for each user in the list
+$userdata=$userlist | ForEach-Object { $(net user $_ /domain | Select-String -Pattern "User name|Last Logon|Account active"; if (-not $?){ Write-Error "$_"};Write-Output "") } # Get the user name, last logon and if the account is active for each user in the list
 $usernames=$($($($userdata | Select-String "User name") -replace "(?:(User name)\w*)","").Trim()).Split("`n") # Get the usernames list
 $userstatus=$($($($userdata | Select-String "Account active") -replace "(?:(Account active)\w*)","").Trim()).Split("`n") # Get the account status list
 $lastlogon0=$($($($userdata | Select-String "Last logon") -replace "(?:(Last logon)\w*)","").Trim()).Split("`n") # Get the last logon time list
