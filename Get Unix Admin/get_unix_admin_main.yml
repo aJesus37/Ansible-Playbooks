@@ -58,3 +58,15 @@
             insertafter: EOF
           delegate_to: localhost
           loop: "{{ csv_values }}"
+
+        - name: Check if playbook_results exists
+          stat:
+            path: /tmp/playbook_results
+          register: folder_details
+
+        - name: Create folder if it doesn't exists
+          command: mkdir -p /tmp/playbook_results
+          when: folder_details.stat.exists == false
+
+        - name: Move result to playbook_results
+          command: mv -f /tmp/administrators_unix_check.csv /tmp/playbook_results/administrators_unix_check.csv

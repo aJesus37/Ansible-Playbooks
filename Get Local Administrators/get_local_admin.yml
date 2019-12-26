@@ -33,3 +33,15 @@
             replace: ''
           delegate_to: localhost
           run_once: True
+
+        - name: Check if playbook_results exists
+          stat:
+            path: /tmp/playbook_results
+          register: folder_details
+
+        - name: Create folder if it doesn't exists
+          command: mkdir -p /tmp/playbook_results
+          when: folder_details.stat.exists == false
+
+        - name: Move result to playbook_results
+          command: mv -f /tmp/administrators_windows_check.csv /tmp/playbook_results/administrators_windows_check.csv
