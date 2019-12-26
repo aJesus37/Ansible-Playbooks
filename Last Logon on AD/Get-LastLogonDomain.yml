@@ -1,0 +1,35 @@
+---
+    - name: Get all the users in a windows domain
+      hosts: server
+      gather_facts: no
+      tasks:
+
+        - name: (Re)Create empty file for storage of information
+          local_action:
+            module: copy
+            dest: /tmp/domain_users.csv
+            content: '"username","active","lastLogon"'
+          run_once: True
+
+        - name: Get the users in domain
+          script:  /etc/ansible/scripts/Get-LastLogonDomain.ps1
+          register: users
+
+        - name: Show content on screen
+          debug: 
+            msg: "{{ users.stdout }}"
+
+        - name: send content to file
+          lineinfile:
+            line: "{{ users.stdout | string }}"
+            dest: /tmp/domain_users.csv
+            insertafter: EOF
+          delegate_to: localhost
+
+        - name: Remove empty lines in csv
+          replace:
+            path: /tmp/domain_users.csv
+            regexp: '(^\s*$\n)'
+            replace: ''
+          delegate_to: localhost
+          run_once: True
