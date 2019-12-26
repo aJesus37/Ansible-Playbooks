@@ -1,6 +1,6 @@
 ---
     - name: Get users and groups in local administrators group
-      hosts: localhost
+      hosts: linux
       gather_facts: no
       tasks:
 
