@@ -4,7 +4,7 @@
     time_to_be_old: 10
   gather_facts: no
   tasks:
-  - include_tasks: "old_policy_firewall.yml"
+  - include_tasks: "/etc/ansible/playbooks/Old Policies Monitoring/old_policy_firewall.yml"
 
 - hosts: localhost
   vars:
@@ -15,5 +15,5 @@
   tasks:
 
   - name: Send data to PRTG
-    include_tasks: "old_policy_prtg.yml"
+    include_tasks: "/etc/ansible/playbooks/Old Policies Monitoring/old_policy_prtg.yml"
     loop: "{{ values }}"

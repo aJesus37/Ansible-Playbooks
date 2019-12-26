@@ -2,7 +2,7 @@
 - hosts: firewalls
   gather_facts: no
   tasks:
-  - include_tasks: "conserve_firewall.yml"
+  - include_tasks: "/etc/ansible/playbooks/Conserve Mode Monitoring/conserve_firewall.yml"
 
 
 - hosts: localhost
@@ -13,5 +13,5 @@
   tasks:
 
   - name: Send data to PRTG
-    include_tasks: "conserve_prtg_data.yml"
+    include_tasks: "/etc/ansible/playbooks/Conserve Mode Monitoring/conserve_prtg_data.yml"
     loop: "{{ values }}"
