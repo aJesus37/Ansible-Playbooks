@@ -38,10 +38,13 @@
           stat:
             path: /tmp/playbook_results
           register: folder_details
+          delegate_to: localhost
 
         - name: Create folder if it doesn't exists
           command: mkdir -p /tmp/playbook_results
           when: folder_details.stat.exists == false
+          delegate_to: localhost
 
         - name: Move result to playbook_results
           command: mv -f /tmp/domain_users.csv /tmp/playbook_results/domain_users.csv
+          delegate_to: localhost
