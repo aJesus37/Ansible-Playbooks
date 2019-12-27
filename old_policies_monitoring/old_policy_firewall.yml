@@ -21,7 +21,7 @@
 
         - name: Set variable for token (hostname)
           set_fact:
-            token: "{{ result.stdout | string | regex_search('[\\w\\-]+\ #|$') | replace(' #|$','') | string }}"
+            token: "{{ result.stdout | string | regex_search('[\\w\\-]+\ [#|$]') | replace(' [#|$]','') | string }}"
 
         - name: Get hits for every rule on firewall
           raw: diagnose firewall iprope  show   00100004 {{ item }}
