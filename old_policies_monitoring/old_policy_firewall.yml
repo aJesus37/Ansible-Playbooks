@@ -83,3 +83,11 @@
             dest: /tmp/old_rules.txt
             insertafter: EOF
           delegate_to: localhost
+
+        - name: Remove empty lines in file
+          replace:
+            path: /tmp/old_rules.txt
+            regexp: '(^\s*$\n)'
+            replace: ''
+          delegate_to: localhost
+          run_once: True
