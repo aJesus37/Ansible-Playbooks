@@ -1,5 +1,5 @@
 ---
-- hosts: firewalls
+- hosts: firewall
   vars:
     time_to_be_old: 10
   gather_facts: no
