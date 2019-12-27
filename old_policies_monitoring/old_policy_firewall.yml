@@ -17,7 +17,7 @@
 
         - name: Set variable for the rule ids
           set_fact:
-            rules_id: "{{ result.stdout | string | regex_findall('edit \\d') | replace('edit ','') | string }}"
+            rules_id: "{{ result.stdout | string | regex_findall('edit \\d+') | replace('edit ','') | string }}"
 
         - name: Set variable for token (hostname)
           set_fact:
