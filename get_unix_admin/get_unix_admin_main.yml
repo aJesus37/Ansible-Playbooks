@@ -59,14 +59,11 @@
           delegate_to: localhost
           loop: "{{ csv_values }}"
 
-        - name: Check if playbook_results exists
-          stat:
+        - name: Create a directory if it does not exist
+          file:
             path: /tmp/playbook_results
-          register: folder_details
-
-        - name: Create folder if it doesn't exists
-          command: mkdir -p /tmp/playbook_results
-          when: folder_details.stat.exists == false
+            state: directory
+          delegate_to: localhost
 
         - name: Move result to playbook_results
           command: mv -f /tmp/administrators_unix_check.csv /tmp/playbook_results/administrators_unix_check.csv
