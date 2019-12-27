@@ -34,15 +34,10 @@
           delegate_to: localhost
           run_once: True
 
-        - name: Check if playbook_results exists
-          stat:
+        - name: Create a directory if it does not exist
+          file:
             path: /tmp/playbook_results
-          register: folder_details
-          delegate_to: localhost
-
-        - name: Create folder if it doesn't exists
-          command: mkdir -p /tmp/playbook_results
-          when: folder_details.stat.exists == false
+            state: directory
           delegate_to: localhost
 
         - name: Move result to playbook_results
