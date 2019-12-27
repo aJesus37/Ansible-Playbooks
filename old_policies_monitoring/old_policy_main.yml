@@ -1,7 +1,7 @@
 ---
 - hosts: firewall
   vars:
-    time_to_be_old: 10
+    time_to_be_old: 180
   gather_facts: no
   tasks:
   - include_tasks: "/etc/ansible/playbooks/old_policies_monitoring/old_policy_firewall.yml"
@@ -10,7 +10,7 @@
   vars:
     values: "{{ lookup('file','/tmp/old_rules.txt').splitlines() }}"
     url: "https://prtgdomain.com:5051/" # URL para o PRTG. Porta 5051 usada quando SSL, 5050 usada quando não SSL
-    time_to_be_old: 10
+    time_to_be_old: 180
   connection: local
   tasks:
 
