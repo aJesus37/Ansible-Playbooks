@@ -1,34 +1,34 @@
 ---
-    - name: Get all the users in a windows domain
-      hosts: server
+    - name: Get users and groups in local administrators group
+      hosts: windows
       gather_facts: no
       tasks:
 
         - name: (Re)Create empty file for storage of information
           local_action:
             module: copy
-            dest: /tmp/domain_users.csv
-            content: '"username","active","lastLogon"'
+            dest: /tmp/administrators_windows_check.csv
+            content: '"Machine","IP","Domain","User/Group"'
           run_once: True
 
-        - name: Get the users in domain
-          script:  '/etc/ansible/playbooks/Last Logon on Domain/Get-LastLogonDomain.ps1'
-          register: users
+        - name: Get users in local administrators group
+          script:  "/etc/ansible/playbooks/get_windows_local_administrators/get_windows_local_admin.ps1 -IP {{ inventory_hostname }}"
+          register: administrators
 
         - name: Show content on screen
           debug: 
-            msg: "{{ users.stdout }}"
+            msg: "{{ administrators.stdout }}"
 
         - name: send content to file
           lineinfile:
-            line: "{{ users.stdout | string }}"
-            dest: /tmp/domain_users.csv
+            line: "{{ administrators.stdout | string }}"
+            dest: /tmp/administrators_windows_check.csv
             insertafter: EOF
           delegate_to: localhost
 
         - name: Remove empty lines in csv
           replace:
-            path: /tmp/domain_users.csv
+            path: /tmp/administrators_windows_check.csv
             regexp: '(^\s*$\n)'
             replace: ''
           delegate_to: localhost
@@ -44,4 +44,4 @@
           when: folder_details.stat.exists == false
 
         - name: Move result to playbook_results
-          command: mv -f /tmp/domain_users.csv /tmp/playbook_results/domain_users.csv
+          command: mv -f /tmp/administrators_windows_check.csv /tmp/playbook_results/administrators_windows_check.csv

@@ -1,0 +1,17 @@
+---
+- hosts: firewalls
+  gather_facts: no
+  tasks:
+  - include_tasks: "/etc/ansible/playbooks/conserve_mode_monitoring/conserve_firewall.yml"
+
+
+- hosts: localhost
+  vars:
+    values: "{{ lookup('file','/tmp/conserve_test.txt').splitlines() }}"
+    url: "https://prtgdomain.com:5051/" # URL para o PRTG. Porta 5051 usada quando SSL, 5050 usada quando não SSL
+  connection: local
+  tasks:
+
+  - name: Send data to PRTG
+    include_tasks: "/etc/ansible/playbooks/conserve_mode_monitoring/conserve_prtg_data.yml"
+    loop: "{{ values }}"
