@@ -2,7 +2,7 @@
 - hosts: linux
   gather_facts: no
   tasks:
-  - include_tasks: "./get_unix_admin_users.yml"
+  - include_tasks: "./get_unix_users_users.yml"
 
 - hosts: linux
   gather_facts: no
@@ -19,7 +19,7 @@
     run_once: True
 
   - name: Transform into csv
-    include_tasks: "./get_unix_admin_csv.yml"
+    include_tasks: "./get_unix_users_csv.yml"
     loop: "{{ values }}"
 
   - name: Create a directory if it does not exist
