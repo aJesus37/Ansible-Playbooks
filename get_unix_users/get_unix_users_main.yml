@@ -1,0 +1,35 @@
+---
+- hosts: linux
+  gather_facts: no
+  tasks:
+  - include_tasks: "./get_unix_admin_users.yml"
+
+- hosts: linux
+  gather_facts: no
+  vars:
+    values: "{{ lookup('file','/tmp/users_unix_check.txt').splitlines() }}"
+  connection: local
+  tasks:
+
+  - name: (Re)Create empty file for storage of information
+    local_action:
+      module: copy
+      dest: /tmp/users_unix_check.csv
+      content: '"group","user","hostname","ip"'
+    run_once: True
+
+  - name: Transform into csv
+    include_tasks: "./get_unix_admin_csv.yml"
+    loop: "{{ values }}"
+
+  - name: Create a directory if it does not exist
+    file:
+      path: /tmp/playbook_results
+      state: directory
+    delegate_to: localhost
+    run_once: True
+
+  - name: Move result to playbook_results
+    command: mv -f  /tmp/users_unix_check.csv /tmp/playbook_results/users_unix_check.csv
+    delegate_to: localhost
+    run_once: True
