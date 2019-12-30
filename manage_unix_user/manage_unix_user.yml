@@ -28,6 +28,7 @@
         - name: askpass
           prompt: "User should give password to elevate? 0:yes, 1:no"
           default: 0
+          private: no
       tasks:
 
         - name: Create hash for password 
