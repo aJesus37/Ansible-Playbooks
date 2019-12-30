@@ -2,6 +2,7 @@
     - name: Get all the users in a windows domain
       hosts: linux
       gather_facts: no
+      become: yes
       vars_prompt:
         - name: username
           prompt: "What is the username?"
