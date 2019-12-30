@@ -17,7 +17,7 @@
           default: "{{ lookup('password', '/dev/null length=15 chars=ascii_letters') }}"
 
         - name: admin
-          prompt: "Is this user admin? 0:no, 1:yes"
+          prompt: "Has this user admin rights? 0:no, 1:yes"
           private: no
           default: 0
       tasks:
