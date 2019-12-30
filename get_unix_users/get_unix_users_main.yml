@@ -1,35 +1,50 @@
 ---
-- hosts: linux
+- hosts: localhost
   gather_facts: no
-  tasks:
-  - include_tasks: "./get_unix_users_users.yml"
-
-- hosts: linux
-  gather_facts: no
-  vars:
-    values: "{{ lookup('file','/tmp/users_unix_check.txt').splitlines() }}"
   connection: local
   tasks:
 
   - name: (Re)Create empty file for storage of information
     local_action:
       module: copy
-      dest: /tmp/users_unix_check.csv
-      content: '"group","user","hostname","ip"'
+      dest: /tmp/users_unix_check.txt
+      content: ''
     run_once: True
 
-  - name: Transform into csv
-    include_tasks: "./get_unix_users_csv.yml"
-    loop: "{{ values }}"
+- hosts: linux
+  gather_facts: no
+  tasks:
+  - include_tasks: "./get_unix_users_users.yml"
 
-  - name: Create a directory if it does not exist
-    file:
-      path: /tmp/playbook_results
-      state: directory
+- hosts: localhost
+  gather_facts: no
+  connection: local
+  tasks:
+
+  - name: (Re)Create empty file for storage of information
+    local_action:
+      module: copy
+      dest: /tmp/playbook_results/users_unix_check.csv
+      content: '"user","group","hostname","ip"'
+    run_once: True
+
+  - name: Run script to create csv
+    command: python ./get_unix_users_csv.py
+    run_once: True
     delegate_to: localhost
-    run_once: True
 
-  - name: Move result to playbook_results
-    command: mv -f  /tmp/users_unix_check.csv /tmp/playbook_results/users_unix_check.csv
-    delegate_to: localhost
-    run_once: True
+  # - name: Transform into csv
+  #   include_tasks: "./get_unix_users_csv.yml"
+  #   loop: "{{ values }}"
+
+  # - name: Create a directory if it does not exist
+  #   file:
+  #     path: /tmp/playbook_results
+  #     state: directory
+  #   delegate_to: localhost
+  #   run_once: True
+
+  # - name: Move result to playbook_results
+  #   command: mv -f  /tmp/users_unix_check.csv /tmp/playbook_results/users_unix_check.csv
+  #   delegate_to: localhost
+  #   run_once: True

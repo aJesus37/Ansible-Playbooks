@@ -1,18 +1,9 @@
 ---
-        - name: Set facts for user
+        - name: Set facts for user, groups, hostname and ip
           set_fact:
             user_name: "{{ item.split(':')[0] }}"
-        
-        - name: Set facts for groups
-          set_fact:
             user_groups: "{{ item.split(':')[1].split(' ') }}"
-
-        - name: Set fact for hostname
-          set_fact:
             hostname: "{{ item.split(':')[2] }}"
-
-        - name: Set fact for ip
-          set_fact:
             host_ip: "{{ item.split(':')[3] }}"
 
         - name: Create empty variable
@@ -30,7 +21,7 @@
           set_fact:
             csv_values: "{{ (csv_values | regex_replace(';$','')).split(';') }}"
 
-        - name: send content to file
+        - name: send content to csv file
           lineinfile:
             line: "{{ csv_value }}"
             dest: /tmp/users_unix_check.csv

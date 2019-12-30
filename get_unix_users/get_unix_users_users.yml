@@ -1,11 +1,4 @@
 ---
-        - name: (Re)Create empty file for storage of information
-          local_action:
-            module: copy
-            dest: /tmp/users_unix_check.txt
-            content: ''
-          run_once: True
-
         - name: Get list of users in system
           shell: "cat /etc/passwd | grep -v '/sbin/[nologin|shutdown|halt]' | grep -v '/bin/[sync|false]' | cut -d: -f1"
           register: userlist
@@ -35,11 +28,7 @@
           set_fact: 
             final_list: "{{ (final_list | regex_replace(';$','')).split(';') }}"
 
-
-        - name: send content to file
-          lineinfile:
-            line: "{{ item }}"
-            dest: /tmp/users_unix_check.txt
-            insertafter: EOF
-          delegate_to: localhost
-          loop: "{{ final_list }}"
+        - name: send content to temporary file
+          local_action:
+            module: shell
+            cmd: "echo {{ final_list| string |replace(\"'\",\"\") | regex_replace('^\\[u','') | regex_replace ('\\]$','\\;') | replace (\", u\",\"\\;\") }} >> /tmp/users_unix_check.txt"
