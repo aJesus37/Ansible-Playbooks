@@ -32,19 +32,3 @@
     command: python ./get_unix_users_csv.py
     run_once: True
     delegate_to: localhost
-
-  # - name: Transform into csv
-  #   include_tasks: "./get_unix_users_csv.yml"
-  #   loop: "{{ values }}"
-
-  # - name: Create a directory if it does not exist
-  #   file:
-  #     path: /tmp/playbook_results
-  #     state: directory
-  #   delegate_to: localhost
-  #   run_once: True
-
-  # - name: Move result to playbook_results
-  #   command: mv -f  /tmp/users_unix_check.csv /tmp/playbook_results/users_unix_check.csv
-  #   delegate_to: localhost
-  #   run_once: True
