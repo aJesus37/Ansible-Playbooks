@@ -1,0 +1,32 @@
+---
+    - name: Get all the users in a windows domain
+      hosts: linux
+      gather_facts: no
+      become: yes
+      vars_prompt:
+        - name: username
+          prompt: "What is the username to deploy the key?"
+          private: no
+
+        - name: key
+          prompt: "paste the public key"
+          private: no
+
+        - name: remove
+          prompt: "You want to remove the key? 0:no, 1:yes"
+          default: 0
+      tasks:
+
+        - name: Add authorized key based on given key
+          authorized_key:
+            user: "{{ username }}"
+            state: present
+            key: "{{ key }}"
+          when: remove=="0"
+
+        - name: Add authorized key based on given key
+          authorized_key:
+            user: "{{ username }}"
+            state: absent
+            key: "{{ key }}"
+          when: remove=="1"
