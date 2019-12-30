@@ -24,6 +24,10 @@
           prompt: "Has this user admin rights? 0:no, 1:yes"
           private: no
           default: 0
+
+        - name: askpass
+          prompt: "User should give password to elevate? 0:yes, 1:no"
+          default: 0
       tasks:
 
         - name: Create hash for password 
@@ -43,15 +47,23 @@
             state: absent
           when: state=="1"
 
-        - name: Add user to sudoers file
+        - name: Add user to sudoers file asking for password
           lineinfile:
             path: /etc/sudoers
             state: present
             regexp: "{{ '^' + username + ' ALL='}}"
             line: "{{ username + ' ALL=(ALL) ALL' }}"
-          when: admin == "1"
+          when: admin == "1" and askpass == "0"
 
-        - name: Remove user in sudoers file
+        - name: Add user to sudoers file without asking for password
+          lineinfile:
+            path: /etc/sudoers
+            state: present
+            regexp: "{{ '^' + username + ' ALL='}}"
+            line: "{{ username + ' ALL=(ALL) NOPASSWD: ALL' }}"
+          when: admin == "1" and askpass == "1"
+
+        - name: Remove user from sudoers file
           lineinfile:
             path: /etc/sudoers
             state: absent
