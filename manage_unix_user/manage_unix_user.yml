@@ -1,5 +1,5 @@
 ---
-    - name: Get all the users in unix
+    - name: Manage users in unix
       hosts: linux
       gather_facts: no
       become: yes

@@ -1,0 +1,31 @@
+---
+    - name: Manage users in Windows
+      hosts: windows
+      gather_facts: no
+      become: yes
+      vars_prompt:
+        - name: username
+          prompt: "What is the username?"
+          private: no
+
+        - name: state
+          prompt: "You want to create/update or to remove the user? 0:create/update, 1:remove"
+          default: 0
+
+        - name: password
+          prompt: "Define the password"
+          confirm: yes
+      tasks:
+
+        - name: Create user with provided credentials
+          win_user:
+            name: "{{ username }}"
+            password: "{{ hash }}"
+            state: present
+          when: state=="0"
+
+        - name: Remove user
+          win_user:
+            name: "{{ username }}"
+            state: absent
+          when: state=="1"
