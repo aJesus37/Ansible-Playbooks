@@ -1,0 +1,46 @@
+---
+    - name: Get all the users in a windows domain
+      hosts: linux
+      gather_facts: no
+      vars_prompt:
+        - name: username
+          prompt: "What is the username?"
+          private: no
+
+        - name: password
+          prompt: "Define the password"
+          confirm: yes
+
+        - name: salt
+          prompt: define a salt for the password
+          default: "{{ lookup('password', '/dev/null length=15 chars=ascii_letters') }}"
+
+        - name: admin
+          prompt: "Is this user admin? 0:no, 1:yes"
+          private: no
+          default: 0
+      tasks:
+
+        - name: Create hash for password 
+          set_fact:
+            hash: "{{ password | password_hash('sha512', salt) }}"
+
+        - name: Create user with provided credentials
+          user:
+            name: "{{ username }}"
+            password: "{{ hash }}"
+
+        - name: Add user to sudoers file
+          lineinfile:
+            path: /etc/sudoers
+            state: present
+            regexp: "{{ '^' + username + ' ALL='}}"
+            line: "{{ username + ' ALL=(ALL) ALL' }}"
+          when: admin == "1"
+
+        - name: Remove user in sudoers file
+          lineinfile:
+            path: /etc/sudoers
+            state: absent
+            regexp: "{{ '^' + username + ' ALL='}}"
+          when: admin == "0"
