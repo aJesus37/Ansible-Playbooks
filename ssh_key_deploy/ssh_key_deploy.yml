@@ -24,7 +24,7 @@
             key: "{{ key }}"
           when: remove=="0"
 
-        - name: Add authorized key based on given key
+        - name: Remove key from host
           authorized_key:
             user: "{{ username }}"
             state: absent
