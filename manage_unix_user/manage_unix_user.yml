@@ -1,5 +1,5 @@
 ---
-    - name: Get all the users in a windows domain
+    - name: Get all the users in unix
       hosts: linux
       gather_facts: no
       become: yes
@@ -7,6 +7,10 @@
         - name: username
           prompt: "What is the username?"
           private: no
+
+        - name: state
+          prompt: "You want to create/update or to remove the user? 0:create/update, 1:remove"
+          default: 0
 
         - name: password
           prompt: "Define the password"
@@ -30,6 +34,14 @@
           user:
             name: "{{ username }}"
             password: "{{ hash }}"
+            state: present
+          when: state=="0"
+
+        - name: Remove user
+          user:
+            name: "{{ username }}"
+            state: absent
+          when: state=="1"
 
         - name: Add user to sudoers file
           lineinfile:
