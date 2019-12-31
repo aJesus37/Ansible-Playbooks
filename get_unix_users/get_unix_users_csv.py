@@ -30,7 +30,6 @@ for line in content.split(';'):
                 csv_file.write('"' + user + '","' + group + '","' + hostname + '","' + ip + '","' + last_login + '"\n')
             except:
                 print("Error1 on group: " + group)
-                #print("Results: user,group,hostname,ip,lastlogin: " + user +', '+ hostname+', '+ip+', '+last_login )
     except:
         print("Error2 in line:" + line)
 csv_file.close()
