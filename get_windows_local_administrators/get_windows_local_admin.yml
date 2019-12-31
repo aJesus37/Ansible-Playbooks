@@ -8,7 +8,7 @@
           local_action:
             module: copy
             dest: /tmp/administrators_windows_check.csv
-            content: '"Machine","IP","Domain","User/Group"'
+            content: '"object","type","domain","hostname","ip/dns"'
           run_once: True
 
         - name: Get users in local administrators group
@@ -39,7 +39,9 @@
             path: /tmp/playbook_results
             state: directory
           delegate_to: localhost
+          run_once: True
 
         - name: Move result to playbook_results
-          command: mv -f /tmp/administrators_windows_check.csv /tmp/playbook_results/administrators_windows_check.csv
+          shell: mv -f /tmp/administrators_windows_check.csv /tmp/playbook_results/administrators_windows_check.csv
           delegate_to: localhost
+          run_once: True
