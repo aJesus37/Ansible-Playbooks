@@ -14,8 +14,9 @@ $csv=@()
 
 for([Int32]$i=0; $i -lt [Int32]$totalValues; $i++){
     if($domains[$i] -eq ""){
-        $domains[$i]="local"
+        $csv+="`"$($inGroup[$i])`",`"$($type[$i])`",`"local`",`"$hostname`", `"$IP`""
+    } else {
+        $csv+="`"$($inGroup[$i])`",`"$($type[$i])`",`"$($domains[$i])`",`"$hostname`", `"$IP`""
     }
-    $csv+="`"$($inGroup[$i])`",`"$($type[$i])`",`"$($domains[$i])`",`"$hostname`", `"$IP`"";
     } 
 [System.Array]$csv[0..$($($csv.Length)-1)]
