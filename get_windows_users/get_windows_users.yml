@@ -12,7 +12,7 @@
           run_once: True
 
         - name: Get the users in domain
-          script:  '/etc/ansible/playbooks/last_logon_on_domain/Get-LastLogonDomain.ps1'
+          script:  '/etc/ansible/playbooks/last_logon_on_domain/get_windows_users.ps1'
           register: users
 
         - name: Show content on screen
