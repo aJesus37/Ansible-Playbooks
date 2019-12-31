@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import re
 
-date_pattern = re.compile("^\w{3} \w{3}.*")
+date_pattern = re.compile("^\w{3}\s*\w{3}.*")
 date_dict={"Seg": "Mon","Ter":"Tue", "Qua": "Wed","Qui": "Thu","Sex":"Fri","Sab":"Sat","Dom":"Sun","Fev":"Feb","Abr":"Apr","Mai":"May","Ago":"Aug","Set":"Sep","Out":"Oct","Dez":"Dec"}
 
 csv_file=open('/tmp/playbook_results/users_unix_check.csv','a')
