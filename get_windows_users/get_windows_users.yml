@@ -8,11 +8,11 @@
           local_action:
             module: copy
             dest: /tmp/domain_users.csv
-            content: '"username","active","lastLogon"'
+            content: '"username","active","lastLogon","expire_date"'
           run_once: True
 
         - name: Get the users in domain
-          script:  '/etc/ansible/playbooks/last_logon_on_domain/get_windows_users.ps1'
+          script:  '/etc/ansible/playbooks/get_windows_users/get_windows_users.ps1'
           register: users
 
         - name: Show content on screen
@@ -39,7 +39,9 @@
             path: /tmp/playbook_results
             state: directory
           delegate_to: localhost
+          run_once: True
 
         - name: Move result to playbook_results
-          command: mv -f /tmp/domain_users.csv /tmp/playbook_results/domain_users.csv
+          shell: mv -f /tmp/domain_users.csv /tmp/playbook_results/domain_users.csv
           delegate_to: localhost
+          run_once: True
