@@ -13,16 +13,26 @@
 
         - name: Remove spaces between colon
           set_fact:
-            grouplist: "{{ grouplist.stdout_lines | regex_replace(' :\ ',':') }}"
+            grouplist: "{{ grouplist.stdout_lines | regex_replace(' :\ ',',') }}"
 
         - name: Create empty variable
           set_fact:
             final_list: ""
 
+        - name: Get last login of each user
+          shell: "lastlog -u {{ item.split(',')[0] }} | sed -n 2p | awk '{print $3,$4,$5,$6,$7,$8}'"
+          register: lastlogon
+          loop: "{{ grouplist }}"
+
+        - debug:
+            msg: "{{ lastlogon }}"
+
         - name: Add hostname to list
           set_fact:
-            final_list: "{{ final_list +  item + ':' + hostname.stdout + ':' + ansible_host + ';' | string }}"
+            final_list: "{{ final_list +  item + ',' + hostname.stdout + ',' + ansible_host + ',' + lastlogon.results[index].stdout + ';' | string }}"
           loop: "{{ grouplist }}"
+          loop_control:
+            index_var: index
 
         - name: Remove additional semi-colon
           set_fact: 
