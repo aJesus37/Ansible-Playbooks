@@ -12,7 +12,7 @@
           run_once: True
 
         - name: Get users in local administrators group
-          script:  "/etc/ansible/playbooks/get_windows_local_administrators/get_windows_local_admin.ps1 -IP {{ inventory_hostname }}"
+          script:  "/etc/ansible/playbooks/get_windows_local_administrators/get_windows_local_admin.ps1 -IP {{ ansible_host }}"
           register: administrators
 
         - name: Show content on screen

@@ -1,0 +1,38 @@
+---
+    - name: Enforce Windows user settings
+      hosts: windows_endpoint
+      gather_facts: no
+      vars:
+        state: "0"
+      tasks:
+        - name: (Re)Create empty file for storage of information
+          local_action:
+            module: copy
+            dest: /tmp/playbook_results/user_settings_enforcement.txt
+            content: ''
+          run_once: True
+
+        - debug:
+            msg: "{{ password }}"
+
+        - name: Create user with provided credentials
+          win_user:
+            name: "{{ username }}"
+            password: "{{ password }}"
+            state: present
+          when: state=="0"
+          notify: Log changed hosts
+
+        - name: Remove user
+          win_user:
+            name: "{{ username }}"
+            state: absent
+          when: state=="1"
+
+      handlers:
+        - name: Log changed hosts
+          local_action:
+            module: lineinfile
+            line: "{{ 'Password set for user local_rp on machine ' + ansible_host }}"
+            dest: /tmp/playbook_results/user_settings_enforcement.txt
+            insertafter: EOF

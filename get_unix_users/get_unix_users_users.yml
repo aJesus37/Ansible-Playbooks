@@ -21,7 +21,7 @@
 
         - name: Add hostname to list
           set_fact:
-            final_list: "{{ final_list +  item + ':' + hostname.stdout + ':' + inventory_hostname + ';' | string }}"
+            final_list: "{{ final_list +  item + ':' + hostname.stdout + ':' + ansible_host + ';' | string }}"
           loop: "{{ grouplist }}"
 
         - name: Remove additional semi-colon

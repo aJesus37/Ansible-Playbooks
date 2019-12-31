@@ -44,7 +44,7 @@
 
         - name: convert output to csv
           set_fact: 
-            csv_values: "{{ csv_values + item | regex_replace('(?:^(\\w+):(\\w+)$)', '\"\\1\",\"\\2\",\"' + hostname.stdout + '\",\"' + inventory_hostname + '\";'   ) | string }}"
+            csv_values: "{{ csv_values + item | regex_replace('(?:^(\\w+):(\\w+)$)', '\"\\1\",\"\\2\",\"' + hostname.stdout + '\",\"' + ansible_host + '\";'   ) | string }}"
           loop: "{{ (unix_users).split(',') }}"
 
         - name: Remove additional semi-colon
