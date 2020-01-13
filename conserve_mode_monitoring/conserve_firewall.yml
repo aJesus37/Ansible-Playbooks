@@ -12,7 +12,7 @@
 
         - name: Set variable for conserve_status
           set_fact:
-            conserve_status: "{{ result.stdout_lines | string | regex_search('[a-zA-Z0-9_-]+\ #.*conserve mode: (on|off)') | string }}" 
+            conserve_status: "{{ result.stdout_lines | string | regex_search('[a-zA-Z0-9_\\-]+\ [#|$].*conserve mode: (on|off)') | string }}" 
 
         - name: send content to file
           lineinfile:
