@@ -1,5 +1,5 @@
 ---
-- hosts: firewalls
+- hosts: firewall
   gather_facts: no
   tasks:
   - include_tasks: "/etc/ansible/playbooks/conserve_mode_monitoring/conserve_firewall.yml"
