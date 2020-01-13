@@ -8,8 +8,8 @@
         - name: (Re)Create empty file for storage of information
           local_action:
             module: copy
-            dest: /tmp/playbook_results/user_settings_enforcement.txt
-            content: ''
+            dest: /tmp/user_settings_enforcement.txt
+            content: "\"username\",\"hostname\",\"ip/dns\",\"changed\"\n"
           run_once: True
 
         - debug:
