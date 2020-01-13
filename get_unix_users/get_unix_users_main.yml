@@ -25,7 +25,7 @@
     local_action:
       module: copy
       dest: /tmp/playbook_results/users_unix_check.csv
-      content: '"user","group","hostname","ip"'
+      content: '"user","group","hostname","ip/dns","lastLogon"'
     run_once: True
 
   - name: Run script to create csv
