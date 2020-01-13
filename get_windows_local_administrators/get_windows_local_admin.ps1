@@ -13,7 +13,7 @@ $type=@() # Try to figure out how to define if is user or group
 $csv=@()
 
 for([Int32]$i=0; $i -lt [Int32]$totalValues; $i++){
-    if($domains[$i] -eq ""){
+    if($null -eq $domains[$i]){
         $csv+="`"$($inGroup[$i])`",`"$($type[$i])`",`"local`",`"$hostname`", `"$IP`""
     } else {
         $csv+="`"$($inGroup[$i])`",`"$($type[$i])`",`"$($domains[$i])`",`"$hostname`", `"$IP`""
