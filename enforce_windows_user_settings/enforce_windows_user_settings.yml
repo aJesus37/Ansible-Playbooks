@@ -1,6 +1,6 @@
 ---
     - name: Enforce Windows user settings
-      hosts: windows_endpoint
+      hosts: windows
       gather_facts: no
       vars:
         state: "0"
