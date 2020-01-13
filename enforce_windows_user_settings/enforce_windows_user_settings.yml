@@ -38,8 +38,8 @@
         - name: Log changed hosts
           local_action:
             module: lineinfile
-            line: "{{ 'Password set for user local_rp on machine ' + ansible_host }}"
-            dest: /tmp/playbook_results/user_settings_enforcement.txt
+            line: "{{ '\"' + username + '\",\"' + hostname.stdout | replace('\n','') | regex_replace('\\s*','') | string + '\",\"' + machine_name + '\",\"' + 'true\"' }}"
+            dest: /tmp/user_settings_enforcement.txt
             insertafter: EOF
           notify: Send file to final location
             
