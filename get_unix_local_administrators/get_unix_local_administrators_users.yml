@@ -1,0 +1,60 @@
+---
+        - name: (Re)Create empty file for storage of information
+          local_action:
+            module: copy
+            dest: /tmp/administrators_unix_check.csv
+            content: "\"object\",\"type\",\"domain\",\"hostname\",\"ip/dns\"\n"
+          run_once: True
+          become: False
+
+        - name: Get host's hostname
+          command:  hostname
+          register: hostname
+        
+        - name: Get host's domain name
+          command: domainname
+          register: domainname
+
+        - name: Create empty variable
+          set_fact:
+            local_admins: ""
+            final_list: ""
+
+        - name: Get list of local administrators
+          shell: "grep -Ev '^#|Defaults|Cmnd_Alias|User_Alias|USERS|^\\s*$' /etc/sudoers | awk '{print $1}'" 
+          register: admins
+
+        - name: define object types
+          set_fact:
+            local_admins: "{{ local_admins }}{% if item is search('%') %}{{ item | regex_replace('^%','') }}:group, {% else %}{{ item }}:user,{% endif %}"
+          loop: "{{ admins.stdout_lines }}"
+          loop_control:
+            index_var: index
+
+        - name: Remove additional comma
+          set_fact: 
+            local_admins: "{{ local_admins | regex_replace('[ ]?,[ ]?$','') }}"
+
+        - name: Add hostname to list
+          set_fact:
+            final_list: "{{ final_list + '\"' + item.split(':')[0] + '\",\"' + item.split(':')[1]  + '\",\"' + domainname.stdout + '\",\"' + hostname.stdout + '\",\"' + ansible_host + '\"' + ';' | string }}"
+          loop: "{{ local_admins.split(',') }}"
+          loop_control:
+            index_var: index
+
+        - name: Remove additional semi-colon
+          set_fact: 
+            final_list: "{{ (final_list | regex_replace(';$','') | regex_replace('\\s*','')).split(';') }}"
+
+        - name: send content to csv
+          local_action:
+            module: shell
+            cmd: "printf '{{ final_list | string |replace(\"'\",\"\") | regex_replace('^\\[u','') | regex_replace ('\\]$','\\;') | replace (\", u\",\"\\;\") | replace('\\;','\\n') }}' >> /tmp/administrators_unix_check.csv"
+          become: false
+
+        - name: Send file to final location
+          local_action:
+            module: shell
+            cmd: "mv -f /tmp/administrators_unix_check.csv /tmp/playbook_results/administrators_unix_check.csv"
+          become: false
+          run_once: True
