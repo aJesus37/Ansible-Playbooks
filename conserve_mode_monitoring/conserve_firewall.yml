@@ -20,3 +20,11 @@
             dest: /tmp/conserve_test.txt
             insertafter: EOF
           delegate_to: localhost
+
+        - name: Remove empty lines in file
+          replace:
+            path: /tmp/conserve_test.txt
+            regexp: '(^\s*$\n)'
+            replace: ''
+          delegate_to: localhost
+          run_once: True
