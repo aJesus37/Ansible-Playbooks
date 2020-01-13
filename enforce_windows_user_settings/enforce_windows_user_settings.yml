@@ -12,8 +12,9 @@
             content: "\"username\",\"hostname\",\"ip/dns\",\"changed\"\n"
           run_once: True
 
-        - debug:
-            msg: "{{ password }}"
+        - name: Get host's hostname
+          raw: "hostname"
+          register: hostname
 
         - name: Create user with provided credentials
           win_user:
@@ -28,6 +29,10 @@
             name: "{{ username }}"
             state: absent
           when: state=="1"
+
+        - name: Get ansible_host content
+          set_fact:
+            machine_name: "{{ ansible_host }}"
 
       handlers:
         - name: Log changed hosts
