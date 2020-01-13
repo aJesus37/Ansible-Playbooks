@@ -41,3 +41,11 @@
             line: "{{ 'Password set for user local_rp on machine ' + ansible_host }}"
             dest: /tmp/playbook_results/user_settings_enforcement.txt
             insertafter: EOF
+          notify: Send file to final location
+            
+        - name: Send file to final location
+          local_action:
+            module: shell
+            cmd: "mv -f /tmp/user_settings_enforcement.txt /tmp/playbook_results/user_settings_enforcement.csv"
+          become: false
+          run_once: True
