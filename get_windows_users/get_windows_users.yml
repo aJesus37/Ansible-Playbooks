@@ -7,7 +7,7 @@
         - name: (Re)Create empty file for storage of information
           local_action:
             module: copy
-            dest: /tmp/domain_users.csv
+            dest: /tmp/domain_users_windows_check.csv
             content: '"username","active","lastLogon","expire_date"'
           run_once: True
 
@@ -22,13 +22,13 @@
         - name: send content to file
           lineinfile:
             line: "{{ users.stdout | string }}"
-            dest: /tmp/domain_users.csv
+            dest: /tmp/domain_users_windows_check.csv
             insertafter: EOF
           delegate_to: localhost
 
         - name: Remove empty lines in csv
           replace:
-            path: /tmp/domain_users.csv
+            path: /tmp/domain_users_windows_check.csv
             regexp: '(^\s*$\n)'
             replace: ''
           delegate_to: localhost
@@ -42,6 +42,6 @@
           run_once: True
 
         - name: Move result to playbook_results
-          shell: mv -f /tmp/domain_users.csv /tmp/playbook_results/domain_users.csv
+          shell: mv -f /tmp/domain_users_windows_check.csv /tmp/playbook_results/domain_users_windows_check.csv
           delegate_to: localhost
           run_once: True
