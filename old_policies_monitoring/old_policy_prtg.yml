@@ -10,12 +10,12 @@
         - name: Set facts for old policies count, count != 0
           set_fact:
             old_policies_count: "{{ (old_policies.split(',') | length | int) }}"
-          when: old_policies != "None"
+          when: old_policies | int
 
         - name: Set facts for old policies count, count == 0
           set_fact:
             old_policies_count: 0
-          when: old_policies == "None"
+          when: not old_policies | int
 
         - name: Set facts for error body
           set_fact:
