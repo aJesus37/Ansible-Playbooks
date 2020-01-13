@@ -12,6 +12,7 @@
     url: "https://prtgdomain.com:5051/" # URL para o PRTG. Porta 5051 usada quando SSL, 5050 usada quando não SSL
     time_to_be_old: 180
   connection: local
+  gather_facts: no
   tasks:
 
   - name: Send data to PRTG
